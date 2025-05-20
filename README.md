@@ -7,29 +7,29 @@ This folder contains the config parameters and metadata files used to run the Fu
 
 ### Additional files
 The FungalPop pipeline was run with the following repeat database file (not included in this repository):
-- RepBase library fasta - version 29.01
+- RepBase library fasta file - version 29.01
 
 ### Reference genomes
 The FungalPop pipeline was run with the following reference genomes (not included in this repository):
 * VNI - CP003820.1, version=2015-04-01 
-- Genome assembly = FungiDB release 65 Cryptococcus neoformans var. grubii H99 
-    - GenBank = GCF_000149245.1 
-- Genome annotation = FungiDB release 65 Cryptococcus neoformans var. grubii H99 
-    - GenBank = GCA_000149245.3
+    - Genome assembly = FungiDB release 65 Cryptococcus neoformans var. grubii H99 
+        - GenBank = GCF_000149245.1 
+    - Genome annotation = FungiDB release 65 Cryptococcus neoformans var. grubii H99 
+        - GenBank = GCA_000149245.3
 
 All other genomes were annotated via liftover from the VNI genome annotation.
 
 * VNII - CP091247.1, version=2022-04-07
-- Genome assembly = FungiDB release 65 Cryptococcus neoformans strain:VNII
-    - GenBank = GCA_022832995.1
+    - Genome assembly = FungiDB release 65 Cryptococcus neoformans strain:VNII
+        - GenBank = GCA_022832995.1
 
 * VNBII - CP097910.1, version=2022-04-07
-- Genome assembly = Cryptococcus neoformans Bt65
-    - GenBank = GCA_023650535.1
+    - Genome assembly = Cryptococcus neoformans Bt65
+        - GenBank = GCA_023650535.1
 
 * VNIV - AE017341.1 , version=2016-06-16 
-- Genome assembly = FungiDB release 65 Cryptococcus neoformans var. neoformans JEC21
-    - GenBank = GCF_000091045.1
+    - Genome assembly = FungiDB release 65 Cryptococcus neoformans var. neoformans JEC21
+        - GenBank = GCF_000091045.1
 
 
 ## FungalPop_output
