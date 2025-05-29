@@ -2,15 +2,15 @@
 Code to accompany Montoya et al. study of fungal genome evolution during chronic cryptococcus infection.
 
 
-## FungalPop_parameters
-This folder contains the config parameters and metadata files used to run the FungalPop pipeline.
+## WeavePop_parameters
+This folder contains the config parameters and metadata files used to run the WeavePop pipeline.
 
 ### Additional files
-The FungalPop pipeline was run with the following repeat database file (not included in this repository):
+The WeavePop pipeline was run with the following repeat database file (not included in this repository):
 - RepBase library fasta file - version 29.01
 
 ### Reference genomes
-The FungalPop pipeline was run with the following reference genomes (not included in this repository):
+The WeavePop pipeline was run with the following reference genomes (not included in this repository):
 * VNI - CP003820.1, version=2015-04-01 
     - Genome assembly = FungiDB release 65 Cryptococcus neoformans var. grubii H99 
         - GenBank = GCF_000149245.1 
@@ -32,14 +32,14 @@ All other genomes were annotated via liftover from the VNI genome annotation.
         - GenBank = GCF_000091045.1
 
 
-## FungalPop_output
-This folder contains subfolders for each patient with read depth plots produced by the FungalPop pipeline. Each plot file is named with the DOI when the associated sample was collected. 
+## WeavePop_output
+This folder contains subfolders for each patient with read depth plots produced by the WeavePop pipeline. Each plot file is named with the DOI when the associated sample was collected. 
 
-This folder also contains output files from post-processing the FungalPop output using the scripts in the FungalPop_scripts folder.
+This folder also contains output files from post-processing the WeavePop output using the scripts in the WeavePop_scripts folder.
 
 
-## FungalPop_scripts
-This folder contains the scripts used to process the files created by the FungalPop pipeline. 
+## WeavePop_scripts
+This folder contains the scripts used to process the files created by the WeavePop pipeline. 
 
 ### Extracting genes within structural variants
 * sv_genes_intersect.sh - obtains gene IDs located within structural variants by intersecting the called deletion and duplication regions with the gene annotation file.
@@ -47,7 +47,7 @@ This folder contains the scripts used to process the files created by the Fungal
     * -> {patient_ID}_SV_genes.csv
 
 ### Extracting variant calls and predicted effects
-* query_database_variants.py - queries the DuckDB database of called SNPs and predicted effects produced by FungalPop to obtain the high-impact and moderate-impact variants for each patient.
+* query_database_variants.py - queries the DuckDB database of called SNPs and predicted effects produced by WeavePop to obtain the high-impact and moderate-impact variants for each patient.
 * query_database_commands.py - contains the commands used to query the DuckDB database.
     * -> chronic_high_impact_variants.csv
     * -> chronic_moderate_impact_variants.csv
