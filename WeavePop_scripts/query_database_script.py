@@ -1,12 +1,12 @@
 import pandas as pd
-import query_database as qd
+import WeavePop_scripts.query_database_commands as qd
 import os
 
 # Define the metadata file path and database
-metadata_file = "chronic_metadata.csv"
+metadata_file = "~/WeavePop_Chronic_Crypto/config/chronic_metadata.csv"
 
-# Database file produced during the FungalPop analysis step on all chronic samples
-database = "database.db"
+# Database file produced during the WeavePop analysis step on all chronic samples
+database = "~/WeavePop_Chronic_Crypto/results_chronic_1/02.Dataset/database.db"
 
 # Import chronic sample metadata
 chronic_metadata_df = pd.read_csv(metadata_file)
@@ -59,29 +59,24 @@ for impact in ["HIGH", "MODERATE"]:
 
     # Read the concatenated file and merge with metadata
     concat_df = pd.read_csv(concatenated_file)
-    concat_df = concat_df.rename(columns={"sample": "strain"})
-    merged_df = concat_df.merge(chronic_metadata_df, on="strain", how="left")
+    merged_df = concat_df.merge(chronic_metadata_df, on="sample", how="left")
     merged_df = merged_df.rename(columns={"plate": "strain_id"})
 
     # Fill missing values with 'n/a'
     merged_df = merged_df.fillna("n/a")
 
     # Drop the sample column
-    merged_df = merged_df.drop(columns=["strain"])
+    merged_df = merged_df.drop(columns=["sample"])
 
     # Collapse identical rows within patients and keep the first DOI occurrence
     collapsed_df = merged_df.groupby(
         merged_df.columns.difference(["strain_id", "doi"]).tolist()
-    ).agg({"strain_id": ", ".join, "doi": "first"}).reset_index()
+    ).agg({"strain_id": ", ".join, "doi": "min"}).reset_index()
 
-    # Rename CNAG gene IDs back for gene lookup purposes
-    collapsed_df["gene_id"] = collapsed_df["gene_id"].str.replace("CBAG", "CNAG")
-    collapsed_df["gene_id"] = collapsed_df["gene_id"].str.replace("CTAG", "CNAG")
-    collapsed_df["gene_id"] = collapsed_df["gene_id"].str.replace("CDAG", "CNAG")
 
     # Remove VNI and VNBII from accession numbers for hybrids
-    collapsed_df["accession"] = collapsed_df["accession"].str.replace("VNI_", "")
-    collapsed_df["accession"] = collapsed_df["accession"].str.replace("VNBII_", "")
+   # collapsed_df["accession"] = collapsed_df["accession"].str.replace("VNI_", "")
+    #collapsed_df["accession"] = collapsed_df["accession"].str.replace("VNBII_", "")
 
     # Reorder columns and sort
     collapsed_df = collapsed_df.reindex(
