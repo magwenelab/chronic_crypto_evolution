@@ -1,54 +1,114 @@
-sample_table: "config/chronic_metadata.csv" # Path to CSV table with columns: sample, group, strain, and more optional metadata.
-species_name: "Cryptococcus_neoformans" 
+# =============================================================================
+#   Choose which workflow to run
+# =============================================================================
 
-fastqs:
-  directory: "/cleaned_reads" # REVIEW # Path to directory with all FASTQ files 
-  fastq_suffix1: "_R1_cleaned.fastq.gz" # Everything after the sample name of the forward reads file.
-  fastq_suffix2: "_R2_cleaned.fastq.gz" # Everything after the sample name of the reverse reads file.
+workflow: "analysis" # Options: "analysis", "join_datasets"
 
-references: 
-  directory: "data/references/" # REVIEW # Path to directory with reference genomes fastas (and GFFs if annotate_references activate is not set to True)
+# =============================================================================
+#   Output (for either workflow)
+# =============================================================================
+
+project_directory: "" # Optional: Path of the project directory, relative to FungalPop/. If empty, the working directory is used.
+run_id: "chronic_1" # Optional: Suffix to append to the 'results/' and 'logs/' directories. 
+
+# =============================================================================
+#   Parameters for the analysis workflow
+# =============================================================================
+
+# ------------------Input------------------------------------------------------
+
+metadata: "config/chronic_metadata.csv" # Path of metadata CSV table. Relative to project_directory or absolute.
+chromosomes: "config/chromosomes.csv" # Path of chromosomes CSV table. Relative to project_directory or absolute.
+samples_to_exclude: # Optional: Path of list of samples to exclude from analyses. Relative to project_directory or absolute.
+
+fastqs_directory: "~/cleaned_reads" # Path of directory with all FASTQ files. Relative to project_directory or absolute.
+fastq_suffix1: "_R1_cleaned.fastq.gz" # Suffix after the sample id of the forward reads file.
+fastq_suffix2: "_R2_cleaned.fastq.gz" # Suffix after the sample id of the reverse reads file.
+
+references_directory: "data/references" # Path of directory with reference genomes. Relative to project_directory or absolute.
+
+repeats_database: "config/RepBase.fasta" # Path to the RepBase FASTA file. Relative to project_directory or absolute. 
+use_fake_database: False # True to use a fake database in the absence of a real one.
+
+# ------------------Annotation of reference genomes----------------------------
 
 annotate_references:
-  activate:
-  directory: "data/main_reference" # REVIEW # Path to directory with main reference genome and annotation
-  gff: "VNI.gff" # Main reference gff. 
-  fasta: "VNI.fasta" # Main reference fasta.
+  activate: True # True to run the annotation of the reference genomes. Empty or False to skip.
+  fasta: "VNI.fasta" # Filename of the main reference genome FASTA file in references_directory.
+  gff: "VNI.gff" # Filename of the main reference genome GFF file in references_directory.
+  liftoff:
+    threads: 12 # Number of threads for Liftoff.
+    extra: "" # Extra parameters for Liftoff.
+
+# ------------------Depth and quality analyses and filter----------------------
+depth_quality: 
+  flag_quality: 
+    low_MAPQ_limit: 20 # Max MAPQ to be considered low quality.
+    high_MAPQ_limit: 60 # Min MAPQ to be considered high quality.
+    min_mapq: 20 # Minimum mapping quality to be considered a good read alignment.
+    filter: False # True to exclude samples flagged by the thresholds below.
+    min_percent_coverage: 90 # If the percent of genome covered by good quality read alignments is below this value, the sample is flagged.
+    min_percent_MAPQ: 90 # If the percent of high-quality reads is below this value, the sample is flagged.
+    min_percent_genome-wide_depth: 10 # If genome-wide depth is below this value, the sample is flagged.
+    min_percent_mapped_reads: 75 # If the percent of mapped reads is below this value, the sample is flagged.
+  mosdepth: 
+    threads: 12  # Number of threads for mosdepth.
+    window: 500 # Window size for mosdepth.
+    extra: "" # Extra parameters for mosdepth.
+
+# ------------------Functional Annotation--------------------------------------
+
+annotation:
+  activate: True # True to activate the module. Empty or False to skip.
   liftoff:
     threads: 12
     extra: ""
+# ------------------Depth and quality of genetic features----------------------
 
-coverage_quality: 
-  activate: True
-  mosdepth: 
-    threads: 12  
-    window: 500 # Window size for mosdepth
-    min_mapq: 20 # Minimum mapping quality for mosdepth
-    extra: ""
-  cnv:
-    smoothing_size: 15 # Parameter for median filtering smoothing of the coverage
-    depth_threshold: 0.6 # Minimum change in coverage for cnv calling
+depth_quality_features:
+  activate: True # True to activate the module. Empty or False to skip.
+
+# ------------------Copy-number variant calling--------------------------------
+
+cnv:
+  activate: True # True to activate the module. Empty or False to skip.
+  smoothing_size: 15 # Parameter for median filtering smoothing of the read depth.
+  depth_threshold: 0.6 # Min deviation from the global depth to be considered a CNV.
   repeats:
-    repeats_database: "config/RepBase.fasta"
-    repeats_threads: 20
-    repeats_fraction: 0.5 # Fraction of repetitive bases allowed for calculating global coverage
+    repeats_threads: 20 # Number of threads for RepeatModeler and RepeatMasker.
+    use_container: False # True to use Apptainer containers for RepeatModeler and RepeatMasker.
 
-snps:
-  activate: True
-  threads: 12
+# ------------------Annotation of SNP effects----------------------------------
+
+snpeff:
+  activate: True # True to activate the module. Empty or False to skip.
+  extra: "" # Extra parameters for SnpEff.
+
+# ------------------Plotting---------------------------------------------------
 
 plotting: 
-  activate: True
-  metadata2color : "sample" # Column name in the sample table to color the samples in the plots
-  scale : 0.7 # This is a value to adjust the size of the plots with ggsave scale parameter. Use lower values for fewer samples and bigger values for more samples.
+  activate: True # True to activate the module. Empty or False to skip.
+  loci: "" # Path to table with loci to add to plots. Relative to project_directory or absolute.
+  metadata2color: "strain" # Column name in the metadata table to color the samples in the plots.
+  scale : 0.7 # Ggsave scale parameter to adjust the size of the dataset plots. Use lower values for fewer samples and bigger values for more samples.
+
+# ------------------Database---------------------------------------------------
+
+database:
+  activate: True # True to activate the module. Empty or False to skip.
+
+# ------------------Snippy parameters------------------------------------------
 
 snippy:
   threads: 12
   extra: ""
 
-liftoff:
-  threads: 12
-  extra: ""
+# =============================================================================
+#   Parameters for the join_datasets workflow
+# =============================================================================
+# This workflow joins the results of running the analysis workflow in different datasets. 
+# It assumes that if the same lineage is present in the different datasets, 
+# the same reference genome was used.
 
-agat:
-  extra: ""
+datasets_paths: "" # Comma-separated list of paths to the directories with the results of the analysis workflow.
+datasets_names: "" # Comma-separated list of names for the datasets, in the same order as the paths.
