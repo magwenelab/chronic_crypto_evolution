@@ -1,6 +1,7 @@
 # chronic_crypto_evolution
 Code to accompany Montoya et al. study of fungal genome evolution during chronic cryptococcus infection.
 
+This study uses WeavePop (https://github.com/magwenelab/WeavePop) to analyze the genomes of the sequenced isolates.
 
 ## WeavePop_parameters
 This folder contains the config parameters and metadata files used to run the WeavePop pipeline.
@@ -17,7 +18,7 @@ The WeavePop pipeline was run with the following reference genomes (not included
     - Genome annotation = FungiDB release 65 Cryptococcus neoformans var. grubii H99 
         - GenBank = GCA_000149245.3
 
-All other genomes were annotated via liftover from the VNI genome annotation.
+All other reference genomes were aligned to the VNI reference to normalize the chromosome numbering and orientation between references. The mapping from the original accessions to the VNI-aligned chromosome numbers and whether the chromosomes were reverse complemented can be found in the genome_accession_mapping.csv file in WeavePop_parameters. The renamed and reoriented reference genomes were annotated via liftover from the VNI genome annotation through WeavePop.
 
 * VNII - CP091247.1, version=2022-04-07
     - Genome assembly = FungiDB release 65 Cryptococcus neoformans strain:VNII
@@ -31,26 +32,21 @@ All other genomes were annotated via liftover from the VNI genome annotation.
     - Genome assembly = FungiDB release 65 Cryptococcus neoformans var. neoformans JEC21
         - GenBank = GCF_000091045.1
 
+## WeavePop_scripts
+This folder contains the scripts used to process the files created by the WeavePop pipeline. 
+
+### Extracting genes within structural variants
+* patient_sv_pipeline.py - Extracts the WeavePop output file containing gene ID's that fall within duplicated or deleted regions, and collapses them across samples for each patient.
+    * -> {patient_ID}_collapsed_sv_genes.tsv
+
+### Extracting variant calls and predicted effects
+* query_database_script.py - queries the DuckDB database of called SNPs and predicted effects produced by WeavePop to obtain the high-impact and moderate-impact variants for each patient.
+* query_database_commands.py - contains the commands used to query the DuckDB database.
+    * -> chronic_high_impact_variants.csv
+    * -> chronic_moderate_impact_variants.csv
 
 ## WeavePop_output
 This folder contains subfolders for each patient with read depth plots produced by the WeavePop pipeline. Each plot file is named with the DOI when the associated sample was collected. 
 
 This folder also contains output files from post-processing the WeavePop output using the scripts in the WeavePop_scripts folder.
 
-
-## WeavePop_scripts
-This folder contains the scripts used to process the files created by the WeavePop pipeline. 
-
-### Extracting genes within structural variants
-* sv_genes_intersect.sh - obtains gene IDs located within structural variants by intersecting the called deletion and duplication regions with the gene annotation file.
-* collapse_intersect_files.py - collapses the files created by sv_genes_intersect.sh into a readable single file for each patient.
-    * -> {patient_ID}_SV_genes.csv
-
-### Extracting variant calls and predicted effects
-* query_database_variants.py - queries the DuckDB database of called SNPs and predicted effects produced by WeavePop to obtain the high-impact and moderate-impact variants for each patient.
-* query_database_commands.py - contains the commands used to query the DuckDB database.
-    * -> chronic_high_impact_variants.csv
-    * -> chronic_moderate_impact_variants.csv
-
-## manuscript_figures
-This folder contains the R scripts and other code used to generate the figures in the manuscript.
